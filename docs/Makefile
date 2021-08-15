@@ -1,5 +1,5 @@
 # Settings
-TARGET := result.pdf
+TARGET := ../requisitos/dominio.pdf
 LANG  := pt-BR
 
 SRC   := $(wildcard *.md)

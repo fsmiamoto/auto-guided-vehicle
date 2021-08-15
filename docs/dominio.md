@@ -4,7 +4,7 @@
 
 # Introdução 
 
-O presente documento tem por objetivo contextualizar o problema de controle de um
+O presente documento tem por objetivo contextualizar o problema do controle de um
 veículo autoguiado em uma pista com obstáculos.
 
 O objetivo principal será garantir que o veículo se locomova dentro dos limites de uma pista oval enquanto desvia de quaisquer obstáculos presentes na mesma.
@@ -42,7 +42,7 @@ Região de locomoção do veículo.
 
 ![Vista superior da pista com suas dimensões. Fonte: Manual SimSE2](./img/pista.png)
 
-Como podemos ver na Figura 2, a *pista* é composta de duas regiões:
+Como podemos ver na Figura 3, a *pista* é composta de duas regiões:
 
 - *Principal*: em cinza.
 - *Lateral*: em verde claro.
@@ -51,7 +51,7 @@ Adicionalmente, temos a região *externa* à pista em verde escuro.
 
 A região lateral e externa da pista deverão ser evitadas.
 
-Na Figura 2 é possível também notar a presença de um condutor preto no centro da região principal da pista.
+Na Figura 3 é possível também notar a presença de um condutor preto no centro da região principal da pista.
 
 Combinado com um sensor apropriado, este condutor pode ser utilzado para determinar
 a posição do *veículo* em relação ao centro da *pista*.
