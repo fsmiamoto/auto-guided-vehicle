@@ -42,6 +42,8 @@ Backup*
 .vscode
 
 simulator/*Data
+simulator/*dat
+
 src/TivaWare_C_Series-2.1.4.178/*examples
 src/CMSIS-5.6.0/CMSIS/**/Examples
 src/CMSIS-5.6.0/CMSIS/DSP
