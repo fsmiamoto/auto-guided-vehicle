@@ -18,7 +18,7 @@ Entidade a ser controlada, possui a capacidade de acelerar em uma determinada di
 
 ![Veículo e obstáculo. Fonte: Manual SimSE2](./img/obstacle.png)
 
-Possuí uma interface UART para o recebimento de comandos e a leitura dos sensores embarcados - apresentados a seguir.
+Possui uma interface UART para o recebimento de comandos e a leitura dos sensores embarcados - apresentados a seguir.
 
 ## Sensores
 Dispositivos presentes no *veículo* que permitem a medição da posição do veículo 
@@ -104,6 +104,12 @@ Conhecendo agora as entidades que compõem o dominío do problema, podemos estab
 - RNF4: O *sistema* deverá utilizar apenas a pista principal para os desvios de *obstáculo*.
 
 - RNF5: O *sistema* deverá utilizar o menor número possível de *sensores*.
+
+- RNF6: O *sistema* deverá manter o veículo sobre o centro da *pista* na ausência de obstáculos.
+
+- RNF7: O *sistema* deverá desviar de obstáculos pelo lado esquerdo.
+
+- RNF8: O *sistema* deverá retornar ao centro da *pista* após o desvio de um *obstáculo*
 
 ## Restrições - R
 - R1: O *sistema* deverá ser implementado usando o RTOS Keil RTX5.
