@@ -12,5 +12,8 @@
     <project>
         <path>$WS_DIR$\Projects\vehicle-control\vehicle-control.ewp</path>
     </project>
+    <project>
+        <path>$WS_DIR$\Projects\vehicle-controller\vehicle-controller.ewp</path>
+    </project>
     <batchBuild />
 </workspace>
