@@ -68,11 +68,9 @@ Agente externo capaz de interagir com o *sistema* através de uma interface pré
 
 Será capaz de solicitar a entrada em movimento e parada do *veículo*.
 
-
 # Especificação
 
 Conhecendo agora as entidades que compõem o dominío do problema, podemos estabelecer os requisitos desejáveis ao *sistema* controlador.
-
 
 ## Requisitos funcionais - RF
 
@@ -108,13 +106,15 @@ Conhecendo agora as entidades que compõem o dominío do problema, podemos estab
 - RNF5: O *sistema* deverá utilizar o menor número possível de *sensores*.
 
 ## Restrições - R
-- R1: O sistema deverá ser implementado usado o RTOS Keil RTX5
+- R1: O *sistema* deverá ser implementado usando o RTOS Keil RTX5.
 
-- R2: O sistema deverá ser desenvolvido para o microcontrolador Texas Instruments 
-TM4C1294
+- R2: O *sistema* deverá ser desenvolvido para o microcontrolador Texas Instruments 
+TM4C1294.
 
 - R3: A interface entre o *usuário* e o *sistema* deverá ser realizada pelos botões incluídos na placa de desenvolvimento do microcontrolador TM4C1294.
 
-- R3: O sistema deverá ser desenvolvido em linguagem C.
+- R3: O *sistema* deverá ser desenvolvido em linguagem C.
 
-- R4: O sistema deverá realizar a comunição UART utilizando interrupções do microcontrolador.
+- R4: O *sistema* deverá realizar a comunição UART utilizando interrupções do microcontrolador.
+
+- R5: O *sistema* deverá ter no mínimo três tarefas de RTOS.
