@@ -27,7 +27,7 @@ na pista bem como a presença de obstáculos.
 ![Sensores presentes no *veículo*. Fonte: Manual SimSE2](./img/sensors.png)
 
 Os sensor de radiofrequência e as câmeras de borda permitem ao *sistema* conhecer
-o posicionamenoo do *veículo* - ou seja qual região da pista o mesmo se encontra.
+o posicionamento do *veículo* - ou seja qual região da pista o mesmo se encontra.
 
 Já os sensores a laser e de ultrassom permitem a detecção dos obstáculos na pista.
 
@@ -53,74 +53,85 @@ A região lateral e externa da pista deverão ser evitadas.
 
 Na Figura 3 é possível também notar a presença de um condutor preto no centro da região principal da pista.
 
-Combinado com um sensor apropriado, este condutor pode ser utilzado para determinar
+Combinado com um sensor apropriado, este condutor pode ser utilizado para determinar
 a posição do *veículo* em relação ao centro da *pista*.
 
 ![Vista aérea completa da pista. Fonte: Manual SimSE2](./img/pista2.png)
 
-## Sistema
-Controlador a ser desenvolvido e embarcado ao veículo para o controle do mesmo.
+## Controlador
+Sistema a ser desenvolvido e embarcado ao veículo para o controle do mesmo.
 
-Será o responsável por garantir o atendimento aos requisitos impostos pelo problema.
+Será o responsável por garantir o atendimento aos requisitos de controle impostos pelo problema.
 
 ## Usuário
 Agente externo capaz de interagir com o *sistema* através de uma interface pré-definida.
 
 Será capaz de solicitar a entrada em movimento e parada do *veículo*.
 
+## Veículo Autoguiado - VA
+Conjunto formado pelo *veículo* com o *controlador* já embarcado.
+
+Deverá atender a todos os requisitos definidos pelos stakeholders.
+
 # Especificação
 
-Conhecendo agora as entidades que compõem o dominío do problema, podemos estabelecer os requisitos desejáveis ao *sistema* controlador.
+Conhecendo agora as entidades que compõem o domínio do problema, podemos estabelecer os requisitos desejáveis ao *veículo autoguiado*.
 
 ## Requisitos funcionais - RF
 
-- RF1: O *sistema* deverá garantir que o *veículo* não atinga a região externa da *pista*.
-    - RF1.1: O *sistema* deverá garantir que o veículo realize as curvas da *pista* sem intervenção do usuário.
+- RF1: O *VA* deverá garantir que o *veículo* não atinga a região externa da *pista*.
+    - RF1.1: O *VA* deverá garantir que o veículo realize as curvas da *pista* sem intervenção do usuário.
 
-- RF2: O *sistema* deverá garantir manter o *veículo* em uma velocidade constante quando em movimento.
-    - RF2.1: O *sistema* deverá permitir a definição da velocidade mantida quando em movimento.
+- RF2: O *VA* deverá garantir manter o *veículo* em uma velocidade constante quando em movimento.
+    - RF2.1: O *VA* deverá permitir ao *usuário* a definição da velocidade mantida quando em movimento.
+    - RF2.2: O *VA* deverá respeitar um limite de velocidade máxima.
 
-- RF3: O *sistema* deverá permitir ao *usuário* solicitar a parada do *veículo*.
+- RF3: O *VA* deverá permitir ao *usuário* solicitar a parada do *veículo*.
 
-- RF4: O *sistema* deverá permitir ao *usuário* solicitar a entrada em movimento do *veículo*.
+- RF4: O *VA* deverá permitir ao *usuário* solicitar a entrada em movimento do *veículo*.
 
-- RF5: O *sistema* deverá solicitar a entrada em movimento do *veículo* somente após uma solicitação do *usuário*.
+- RF5: O *VA* deverá solicitar a entrada em movimento do *veículo* somente após uma solicitação do *usuário*.
 
-- RF6: O *sistema* deverá aguardar o início da comunicação do *veículo* antes de enviar qualquer comando ao mesmo.
+- RF6: O *VA* deverá aguardar o início da comunicação do *veículo* antes de enviar qualquer comando ao mesmo.
 
-- RF7: O *sistema* deverá garantir que o *veículo* não colida com nenhum objeto.
-    - RF7.1: O *sistema* deverá garantir que *obstáculos* na *pista* serão desviados pelo *veículo*.
+- RF7: O *VA* deverá garantir que o *veículo* não colida com nenhum objeto.
+    - RF7.1: O *VA* deverá garantir que *obstáculos* na *pista* serão desviados pelo *veículo*.
 
-- RF8: O *sistema* deverá se comunicar com o *veículo* através de uma interface UART.
+- RF8: O *VA* deverá se comunicar com o *veículo* através de uma interface UART.
 
 ## Requisitos não funcionais - RNF
 
-- RNF1: O *sistema* deverá responder a uma solicitação de parada em até 100 ms.
+- RNF1: O *VA* deverá responder a uma solicitação de parada em até 100 ms.
 
-- RNF2: O *sistema* deverá responder a uma solicitação de entrada em movimento em até 100 ms.
+- RNF2: O *VA* deverá responder a uma solicitação de entrada em movimento em até 100 ms.
 
-- RNF3: O *sistema* deverá permitir a definição da velocidade desejada para o *veículo* quando em movimento através de um parâmetro de compilação.
+- RNF3: O *VA* deverá aumentar a velocidade do *veículo* caso o mesmo já esteja em
+  movimento e uma nova solicitação de entrada em movimento seja realizada.
+  - RNF3.1: O *VA* deverá ser ignorar o aumento caso o mesmo implique num desrespeito ao
+    limite de velocidade máxima.
 
-- RNF4: O *sistema* deverá utilizar apenas a pista principal para os desvios de *obstáculo*.
+- RNF4: O *VA* deverá permitir a definição do limite de velocidade máxima através de um parâmetro de compilação.
 
-- RNF5: O *sistema* deverá utilizar o menor número possível de *sensores*.
+- RNF5: O *VA* deverá utilizar apenas a pista principal para os desvios de *obstáculo*.
 
-- RNF6: O *sistema* deverá manter o veículo sobre o centro da *pista* na ausência de obstáculos.
+- RNF6: O *VA* deverá utilizar o menor número possível de *sensores*.
 
-- RNF7: O *sistema* deverá desviar de obstáculos pelo lado esquerdo.
+- RNF7: O *VA* deverá manter o veículo sobre o centro da *pista* na ausência de obstáculos.
 
-- RNF8: O *sistema* deverá retornar ao centro da *pista* após o desvio de um *obstáculo*
+- RNF8: O *VA* deverá desviar de obstáculos pelo lado esquerdo.
+
+- RNF9: O *VA* deverá retornar ao centro da *pista* após o desvio de um *obstáculo*
 
 ## Restrições - R
-- R1: O *sistema* deverá ser implementado usando o RTOS Keil RTX5.
+- R1: O *controlador* deverá ser implementado usando o RTOS Keil RTX5.
 
-- R2: O *sistema* deverá ser desenvolvido para o microcontrolador Texas Instruments 
+- R2: O *controlador* deverá ser desenvolvido para o microcontrolador Texas Instruments 
 TM4C1294.
 
-- R3: A interface entre o *usuário* e o *sistema* deverá ser realizada pelos botões incluídos na placa de desenvolvimento do microcontrolador TM4C1294.
+- R3: A interface entre o *usuário* e o *VA* deverá ser realizada pelos botões incluídos na placa de desenvolvimento do microcontrolador TM4C1294.
 
-- R3: O *sistema* deverá ser desenvolvido em linguagem C.
+- R3: O *controlador* deverá ser desenvolvido em linguagem C.
 
-- R4: O *sistema* deverá realizar a comunição UART utilizando interrupções do microcontrolador.
+- R4: O *controlador* deverá realizar a comunicação UART utilizando interrupções do microcontrolador.
 
-- R5: O *sistema* deverá ter no mínimo três tarefas de RTOS.
+- R5: O *controlador* deverá ter no mínimo três tarefas de RTOS.
