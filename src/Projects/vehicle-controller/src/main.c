@@ -2,11 +2,14 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-#include "driverleds.h"
+#include "driverbuttons.h"
 #include "uart.h"
 #include "utils/uartstdio.h"
 
 #define UART_WRITER_QUEUE_SIZE 8
+
+#define NO_WAIT 0U
+#define MSG_PRIO 0U
 
 #define DEBOUNCE_TICKS 300U
 
@@ -47,7 +50,6 @@ void initMessage(void) {
 void UARTWriter(void *arg) {
   uart_writer_t *w = (uart_writer_t *)arg;
   uart_writer_msg_t msg;
-  osStatus_t status;
   const char *name = osThreadGetName(w->tid);
   osMessageQueueId_t queue_id = w->args.qid;
 
@@ -55,21 +57,50 @@ void UARTWriter(void *arg) {
   UARTFlush();
 
   for (;;) {
-    UARTprintf("%s: waiting for msg", name);
+    UARTprintf("%s: waiting for msg\n", name);
     osMessageQueueGet(queue_id, &msg, NULL, osWaitForever);
     UARTprintf("%s\n", msg.content);
+  }
+}
+void GPIOJ_Handler(void) {
+  // Used for debouncing
+  static uint32_t tick_last_msg_sw1, tick_last_msg_sw2;
+
+  ButtonIntClear(USW1 | USW2);
+
+  if (ButtonPressed(USW1)) {
+    if ((osKernelGetTickCount() - tick_last_msg_sw1) < DEBOUNCE_TICKS)
+      return;
+
+    uart_writer_msg_t msg = {.content = "A1.0;", .size = 5};
+    osStatus_t status =
+        osMessageQueuePut(writer.args.qid, &msg, MSG_PRIO, NO_WAIT);
+    if (status == osOK)
+      tick_last_msg_sw1 = osKernelGetTickCount();
+  }
+
+  if (ButtonPressed(USW2)) {
+    if ((osKernelGetTickCount() - tick_last_msg_sw2) < DEBOUNCE_TICKS)
+      return;
+
+    uart_writer_msg_t msg = {.content = "S;", .size = 2};
+    osStatus_t s = osMessageQueuePut(writer.args.qid, &msg, MSG_PRIO, NO_WAIT);
+    if (s == osOK)
+      tick_last_msg_sw2 = osKernelGetTickCount();
   }
 }
 
 void main(void) {
   UARTInit();
+  ButtonInit(USW1 | USW2);
+  ButtonIntEnable(USW1 | USW2);
   initMessage();
 
   if (osKernelGetState() == osKernelInactive)
     osKernelInitialize();
 
-  writer.args.qid =
-      osMessageQueueNew(UART_WRITER_QUEUE_SIZE, sizeof(button_event_t), NULL);
+  writer.args.qid = osMessageQueueNew(UART_WRITER_QUEUE_SIZE,
+                                      sizeof(uart_writer_msg_t), NULL);
   writer.tid = osThreadNew(UARTWriter, &writer, &writer.attr);
 
   if (osKernelGetState() == osKernelReady)
