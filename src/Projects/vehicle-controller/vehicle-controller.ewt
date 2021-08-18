@@ -1424,6 +1424,9 @@
         <name>$PROJ_DIR$\..\..\TivaWare_C_Series-2.1.4.178\driverlib\ewarm\Exe\driverlib.a</name>
     </file>
     <file>
+        <name>$PROJ_DIR$\src\main.c</name>
+    </file>
+    <file>
         <name>$PROJ_DIR$\..\..\CMSIS-5.6.0\CMSIS\RTOS2\RTX\Library\IAR\IDE\CM4F\Exe\RTX_CM.a</name>
     </file>
     <file>
@@ -1439,7 +1442,7 @@
         <name>$PROJ_DIR$\src\system_TM4C1294_TW.c</name>
     </file>
     <file>
-        <name>$PROJ_DIR$\src\UART_inst.c</name>
+        <name>$PROJ_DIR$\src\uart.c</name>
     </file>
     <file>
         <name>$PROJ_DIR$\..\..\TivaWare_C_Series-2.1.4.178\utils\uartstdio.c</name>

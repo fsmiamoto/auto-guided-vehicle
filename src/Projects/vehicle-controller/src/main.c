@@ -2,43 +2,13 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-// includes da biblioteca driverlib
-#include "driverlib/gpio.h"
-#include "driverlib/pin_map.h"
-#include "driverlib/sysctl.h"
-#include "driverlib/uart.h"
-#include "inc/hw_memmap.h"
-#include "system_TM4C1294.h"
+#include "uart.h"
 #include "utils/uartstdio.h"
 
 osThreadId_t thread1_id, thread2_id;
 osMutexId_t uart_id;
 
 const osThreadAttr_t thread1_attr = {.name = "Thread 1"};
-
-extern void UARTStdioIntHandler(void);
-
-void UARTInit(void) {
-  // Enable UART0
-  SysCtlPeripheralEnable(SYSCTL_PERIPH_UART0);
-  while (!SysCtlPeripheralReady(SYSCTL_PERIPH_UART0))
-    ;
-
-  // Initialize the UART for console I/O.
-  UARTStdioConfig(0, 9600, SystemCoreClock);
-
-  // Enable the GPIO Peripheral used by the UART.
-  SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOA);
-  while (!SysCtlPeripheralReady(SYSCTL_PERIPH_GPIOA))
-    ;
-
-  // Configure GPIO Pins for UART mode.
-  GPIOPinConfigure(GPIO_PA0_U0RX);
-  GPIOPinConfigure(GPIO_PA1_U0TX);
-  GPIOPinTypeUART(GPIO_PORTA_BASE, GPIO_PIN_0 | GPIO_PIN_1);
-}
-
-void UART0_Handler(void) { UARTStdioIntHandler(); }
 
 void myKernelInfo(void) {
   osVersion_t osv;
@@ -125,14 +95,14 @@ __NO_RETURN void thread1(void *arg) {
   for (;;) {
 
     osMutexAcquire(uart_id, osWaitForever);
-    //UARTprintf("A1.5;");
+    // UARTprintf("A1.5;");
     osMutexRelease(uart_id);
 
     for (int d = 0; d < 10000; d++)
       ;
 
     osMutexAcquire(uart_id, osWaitForever);
-    //UARTprintf("S;");
+    // UARTprintf("S;");
     osMutexRelease(uart_id);
 
     osDelay(1000);
