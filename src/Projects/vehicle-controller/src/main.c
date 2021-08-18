@@ -2,12 +2,35 @@
 #include <stdbool.h>
 #include <stdio.h>
 
+#include "driverleds.h"
 #include "uart.h"
 #include "utils/uartstdio.h"
+
+#define UART_WRITER_QUEUE_SIZE 8
+
+#define DEBOUNCE_TICKS 300U
+
+// Push buttons are active in 0
+#define ButtonPressed(b) !ButtonRead(b)
+
+typedef enum {
+  SW1_PRESSED,
+  SW2_PRESSED,
+} button_event_t;
+
+typedef struct {
+  char *content;
+  uint8_t size;
+} uart_writer_msg_t;
+
+typedef struct {
+  osMessageQueueId_t qid;
+} uart_writer_args_t;
 
 typedef struct {
   osThreadAttr_t attr;
   osThreadId_t tid;
+  uart_writer_args_t args;
 } uart_writer_t;
 
 const char *name = "Osewa";
@@ -22,20 +45,19 @@ void initMessage(void) {
 }
 
 void UARTWriter(void *arg) {
-  uart_writer_t *args = (uart_writer_t *)arg;
-  UARTprintf("%s: initialized;\n", osThreadGetName(args->tid));
+  uart_writer_t *w = (uart_writer_t *)arg;
+  uart_writer_msg_t msg;
+  osStatus_t status;
+  const char *name = osThreadGetName(w->tid);
+  osMessageQueueId_t queue_id = w->args.qid;
+
+  UARTprintf("%s: initialized;\n", name);
   UARTFlush();
 
   for (;;) {
-    UARTprintf("A1.5;\n");
-    UARTFlush();
-    osDelay(1000);
-    UARTprintf("A0;\n");
-    UARTFlush();
-    osDelay(5000);
-    UARTprintf("S;\n");
-    UARTFlush();
-    osDelay(10000);
+    UARTprintf("%s: waiting for msg", name);
+    osMessageQueueGet(queue_id, &msg, NULL, osWaitForever);
+    UARTprintf("%s\n", msg.content);
   }
 }
 
@@ -46,6 +68,8 @@ void main(void) {
   if (osKernelGetState() == osKernelInactive)
     osKernelInitialize();
 
+  writer.args.qid =
+      osMessageQueueNew(UART_WRITER_QUEUE_SIZE, sizeof(button_event_t), NULL);
   writer.tid = osThreadNew(UARTWriter, &writer, &writer.attr);
 
   if (osKernelGetState() == osKernelReady)
