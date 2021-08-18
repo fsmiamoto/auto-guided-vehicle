@@ -6,12 +6,16 @@
 #include "uart.h"
 #include "utils/uartstdio.h"
 
-#define UART_WRITER_QUEUE_SIZE 8
+#define QUEUE_SIZE 10
+
+#define SECOND 1000
 
 #define NO_WAIT 0U
 #define MSG_PRIO 0U
 
 #define DEBOUNCE_TICKS 300U
+
+#define TARGET_SPEED 5 // m/s
 
 // Push buttons are active in 0
 #define ButtonPressed(b) !ButtonRead(b)
@@ -23,7 +27,6 @@ typedef enum {
 
 typedef struct {
   char *content;
-  uint8_t size;
 } uart_writer_msg_t;
 
 typedef struct {
@@ -36,10 +39,23 @@ typedef struct {
   uart_writer_args_t args;
 } uart_writer_t;
 
+typedef struct {
+  osMessageQueueId_t qid;
+  int16_t target_speed;
+} speed_controller_args_t;
+
+typedef struct {
+  osThreadAttr_t attr;
+  osThreadId_t tid;
+  speed_controller_args_t args;
+} speed_controller_t;
+
 const char *name = "Osewa";
 const char *version = "0.0.1";
 
 uart_writer_t writer = {.attr = {.name = "UART Writer"}};
+speed_controller_t speed_ctl = {.attr = {.name = "Speed Controller"},
+                                .args = {.target_speed = TARGET_SPEED}};
 
 void initMessage(void) {
   UARTprintf("%s: Autoguided Vehicle Controller\n", name);
@@ -50,6 +66,7 @@ void initMessage(void) {
 void UARTWriter(void *arg) {
   uart_writer_t *w = (uart_writer_t *)arg;
   uart_writer_msg_t msg;
+
   const char *name = osThreadGetName(w->tid);
   osMessageQueueId_t queue_id = w->args.qid;
 
@@ -57,11 +74,37 @@ void UARTWriter(void *arg) {
   UARTFlush();
 
   for (;;) {
-    UARTprintf("%s: waiting for msg\n", name);
     osMessageQueueGet(queue_id, &msg, NULL, osWaitForever);
     UARTprintf("%s\n", msg.content);
   }
 }
+
+void SpeedController(void *arg) {
+  speed_controller_t *s = (speed_controller_t *)arg;
+  button_event_t event;
+  uart_writer_msg_t msg;
+
+  const char *name = osThreadGetName(s->tid);
+  osMessageQueueId_t queue_id = s->args.qid;
+
+  UARTprintf("%s: initialized;\n", name);
+  UARTFlush();
+
+  for (;;) {
+    osMessageQueueGet(queue_id, &event, NULL, osWaitForever);
+    if (event == SW2_PRESSED) {
+      msg.content = "S;";
+      osMessageQueuePut(writer.args.qid, &msg, MSG_PRIO, osWaitForever);
+    } else {
+      msg.content = "A1;";
+      osMessageQueuePut(writer.args.qid, &msg, MSG_PRIO, osWaitForever);
+      osDelay(s->args.target_speed * SECOND);
+      msg.content = "A0;";
+      osMessageQueuePut(writer.args.qid, &msg, MSG_PRIO, osWaitForever);
+    }
+  }
+}
+
 void GPIOJ_Handler(void) {
   // Used for debouncing
   static uint32_t tick_last_msg_sw1, tick_last_msg_sw2;
@@ -72,9 +115,9 @@ void GPIOJ_Handler(void) {
     if ((osKernelGetTickCount() - tick_last_msg_sw1) < DEBOUNCE_TICKS)
       return;
 
-    uart_writer_msg_t msg = {.content = "A1.0;", .size = 5};
+    button_event_t event = SW1_PRESSED;
     osStatus_t status =
-        osMessageQueuePut(writer.args.qid, &msg, MSG_PRIO, NO_WAIT);
+        osMessageQueuePut(speed_ctl.args.qid, &event, MSG_PRIO, NO_WAIT);
     if (status == osOK)
       tick_last_msg_sw1 = osKernelGetTickCount();
   }
@@ -83,9 +126,10 @@ void GPIOJ_Handler(void) {
     if ((osKernelGetTickCount() - tick_last_msg_sw2) < DEBOUNCE_TICKS)
       return;
 
-    uart_writer_msg_t msg = {.content = "S;", .size = 2};
-    osStatus_t s = osMessageQueuePut(writer.args.qid, &msg, MSG_PRIO, NO_WAIT);
-    if (s == osOK)
+    button_event_t event = SW2_PRESSED;
+    osStatus_t status =
+        osMessageQueuePut(speed_ctl.args.qid, &event, MSG_PRIO, NO_WAIT);
+    if (status == osOK)
       tick_last_msg_sw2 = osKernelGetTickCount();
   }
 }
@@ -99,9 +143,13 @@ void main(void) {
   if (osKernelGetState() == osKernelInactive)
     osKernelInitialize();
 
-  writer.args.qid = osMessageQueueNew(UART_WRITER_QUEUE_SIZE,
-                                      sizeof(uart_writer_msg_t), NULL);
+  writer.args.qid =
+      osMessageQueueNew(QUEUE_SIZE, sizeof(uart_writer_msg_t), NULL);
   writer.tid = osThreadNew(UARTWriter, &writer, &writer.attr);
+
+  speed_ctl.args.qid =
+      osMessageQueueNew(QUEUE_SIZE, sizeof(button_event_t), NULL);
+  speed_ctl.tid = osThreadNew(SpeedController, &speed_ctl, &speed_ctl.attr);
 
   if (osKernelGetState() == osKernelReady)
     osKernelStart();
