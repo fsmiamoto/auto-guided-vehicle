@@ -1,3 +1,4 @@
+#include <stdarg.h>
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -31,3 +32,16 @@ void UARTInit(void) {
 }
 
 void UART0_Handler(void) { UARTStdioIntHandler(); }
+
+// Print and then flush
+// TODO: Debug
+void UARTPrintAndFlush(const char *fmt, ...) {
+  va_list args;
+  va_start(args, fmt);
+  UARTprintf(fmt, args);
+  UARTFlush();
+  va_end(args);
+}
+
+// Flush the Transmmit Buffer
+void UARTFlush() { UARTFlushTx(false); }
