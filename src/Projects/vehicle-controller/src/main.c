@@ -79,6 +79,11 @@ void UARTWriter(void *arg) {
   }
 }
 
+void stopAccelarating(void *arg) {
+  uart_writer_msg_t msg = {.content = "A0;"};
+  osMessageQueuePut(writer.args.qid, &msg, MSG_PRIO, NO_WAIT);
+}
+
 void SpeedController(void *arg) {
   speed_controller_t *s = (speed_controller_t *)arg;
   button_event_t event;
@@ -87,20 +92,21 @@ void SpeedController(void *arg) {
   const char *name = osThreadGetName(s->tid);
   osMessageQueueId_t queue_id = s->args.qid;
 
+  osTimerId_t timer = osTimerNew(stopAccelarating, osTimerOnce, NULL, NULL);
+
   UARTprintf("%s: initialized;\n", name);
   UARTFlush();
 
   for (;;) {
     osMessageQueueGet(queue_id, &event, NULL, osWaitForever);
     if (event == SW2_PRESSED) {
+      s->args.target_speed = 0;
       msg.content = "S;";
       osMessageQueuePut(writer.args.qid, &msg, MSG_PRIO, osWaitForever);
     } else {
       msg.content = "A1;";
       osMessageQueuePut(writer.args.qid, &msg, MSG_PRIO, osWaitForever);
-      osDelay(s->args.target_speed * SECOND);
-      msg.content = "A0;";
-      osMessageQueuePut(writer.args.qid, &msg, MSG_PRIO, osWaitForever);
+      osTimerStart(timer, s->args.target_speed * SECOND);
     }
   }
 }
