@@ -86,18 +86,29 @@ Conhecendo agora as entidades que compõem o domínio do problema, podemos estab
     - RF2.1: O *VA* deverá permitir ao *usuário* a definição da velocidade mantida quando em movimento.
     - RF2.2: O *VA* deverá respeitar um limite de velocidade máxima.
 
-- RF3: O *VA* deverá permitir ao *usuário* solicitar a parada do *veículo*.
+- RF3: O *VA* deverá aumentar a velocidade do *veículo* caso o mesmo já esteja em
+  movimento e uma nova solicitação de entrada em movimento seja realizada.
+  - RF3.1: O *VA* deverá ser ignorar o aumento caso o mesmo implique num desrespeito ao
+    limite de velocidade máxima.
 
-- RF4: O *VA* deverá permitir ao *usuário* solicitar a entrada em movimento do *veículo*.
+- RF4: O *VA* deverá permitir ao *usuário* solicitar a parada do *veículo*.
 
-- RF5: O *VA* deverá solicitar a entrada em movimento do *veículo* somente após uma solicitação do *usuário*.
+- RF5: O *VA* deverá permitir ao *usuário* solicitar a entrada em movimento do *veículo*.
 
-- RF6: O *VA* deverá aguardar o início da comunicação do *veículo* antes de enviar qualquer comando ao mesmo.
+- RF6: O *VA* deverá solicitar a entrada em movimento do *veículo* somente após uma solicitação do *usuário*.
 
-- RF7: O *VA* deverá garantir que o *veículo* não colida com nenhum objeto.
+- RF7: O *VA* deverá aguardar o início da comunicação do *veículo* antes de enviar qualquer comando ao mesmo.
+
+- RF8: O *VA* deverá garantir que o *veículo* não colida com nenhum objeto.
     - RF7.1: O *VA* deverá garantir que *obstáculos* na *pista* serão desviados pelo *veículo*.
 
-- RF8: O *VA* deverá se comunicar com o *veículo* através de uma interface UART.
+- RF9: O *VA* deverá utilizar apenas a pista principal para os desvios de *obstáculo*.
+
+- RF10: O *VA* deverá manter o veículo sobre o centro da *pista* na ausência de obstáculos.
+
+- RF11: O *VA* deverá desviar de obstáculos pelo lado esquerdo.
+
+- RF12: O *VA* deverá se comunicar com o *veículo* através de uma interface UART.
 
 ## Requisitos não funcionais - RNF
 
@@ -105,22 +116,11 @@ Conhecendo agora as entidades que compõem o domínio do problema, podemos estab
 
 - RNF2: O *VA* deverá responder a uma solicitação de entrada em movimento em até 100 ms.
 
-- RNF3: O *VA* deverá aumentar a velocidade do *veículo* caso o mesmo já esteja em
-  movimento e uma nova solicitação de entrada em movimento seja realizada.
-  - RNF3.1: O *VA* deverá ser ignorar o aumento caso o mesmo implique num desrespeito ao
-    limite de velocidade máxima.
+- RNF3: O *VA* deverá permitir a definição do limite de velocidade máxima através de um parâmetro de compilação.
 
-- RNF4: O *VA* deverá permitir a definição do limite de velocidade máxima através de um parâmetro de compilação.
+- RNF4: O *VA* deverá utilizar o menor número possível de *sensores*.
 
-- RNF5: O *VA* deverá utilizar apenas a pista principal para os desvios de *obstáculo*.
-
-- RNF6: O *VA* deverá utilizar o menor número possível de *sensores*.
-
-- RNF7: O *VA* deverá manter o veículo sobre o centro da *pista* na ausência de obstáculos.
-
-- RNF8: O *VA* deverá desviar de obstáculos pelo lado esquerdo.
-
-- RNF9: O *VA* deverá retornar ao centro da *pista* após o desvio de um *obstáculo*
+- RNF5: O *VA* deverá retornar ao centro da *pista* após o desvio de um *obstáculo*
 
 ## Restrições - R
 - R1: O *controlador* deverá ser implementado usando o RTOS Keil RTX5.
