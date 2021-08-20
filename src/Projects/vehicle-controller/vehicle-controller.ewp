@@ -1078,4 +1078,7 @@
     <file>
         <name>$PROJ_DIR$\..\..\TivaWare_C_Series-2.1.4.178\utils\uartstdio.c</name>
     </file>
+    <file>
+        <name>$PROJ_DIR$\..\..\TivaWare_C_Series-2.1.4.178\utils\ustdlib.c</name>
+    </file>
 </project>

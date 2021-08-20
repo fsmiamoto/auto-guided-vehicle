@@ -5,6 +5,7 @@
 #include "driverbuttons.h"
 #include "uart.h"
 #include "utils/uartstdio.h"
+#include "utils/ustdlib.h"
 
 #define QUEUE_SIZE 10
 
@@ -40,6 +41,11 @@ typedef struct {
 } uart_writer_t;
 
 typedef struct {
+  osThreadAttr_t attr;
+  osThreadId_t tid;
+} uart_reader_t;
+
+typedef struct {
   osMessageQueueId_t qid;
   int16_t target_speed;
 } speed_controller_args_t;
@@ -54,6 +60,7 @@ const char *name = "Osewa";
 const char *version = "0.0.1";
 
 uart_writer_t writer = {.attr = {.name = "UART Writer"}};
+uart_reader_t reader = {.attr = {.name = "UART Reader"}};
 speed_controller_t speed_ctl = {.attr = {.name = "Speed Controller"},
                                 .args = {.target_speed = TARGET_SPEED}};
 
@@ -140,6 +147,23 @@ void GPIOJ_Handler(void) {
   }
 }
 
+void UARTReader(void *arg) {
+  char buffer[32];
+  char c;
+  uint8_t i;
+  for (;;) {
+    if (UARTPeek(';')) {
+      i = 0;
+      while ((c = UARTgetc()) != ';') {
+        buffer[i++] = c;
+      }
+      buffer[i] = '\0';
+      float reading = ustrtof(buffer, NULL);
+      UARTprintf("\nreading: %d\n", reading);
+    }
+  }
+}
+
 void main(void) {
   UARTInit();
   ButtonInit(USW1 | USW2);
@@ -152,6 +176,8 @@ void main(void) {
   writer.args.qid =
       osMessageQueueNew(QUEUE_SIZE, sizeof(uart_writer_msg_t), NULL);
   writer.tid = osThreadNew(UARTWriter, &writer, &writer.attr);
+
+  reader.tid = osThreadNew(UARTReader, &reader, &reader.attr);
 
   speed_ctl.args.qid =
       osMessageQueueNew(QUEUE_SIZE, sizeof(button_event_t), NULL);
