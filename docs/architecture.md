@@ -2,6 +2,8 @@
 % Sistemas Embarcados - UTFPR
 % Francisco Miamoto - Agosto de 2021
 
-# Introdução 
+## Arquitetura
+
+O diagrama a seguir contém a arquitetura do sistema a ser desenvolvido:
 
 ![](./img/architecture.png)
