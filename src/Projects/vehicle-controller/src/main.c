@@ -1,4 +1,4 @@
-#include "cmsis_os2.h" // CMSIS-RTOS
+#include "cmsis_os2.h"
 #include <stdbool.h>
 #include <stdio.h>
 
@@ -6,6 +6,8 @@
 #include "uart.h"
 #include "utils/uartstdio.h"
 #include "utils/ustdlib.h"
+
+#include "types.h"
 
 #define QUEUE_SIZE 10
 
@@ -21,41 +23,6 @@
 // Push buttons are active in 0
 #define ButtonPressed(b) !ButtonRead(b)
 
-typedef enum {
-  SW1_PRESSED,
-  SW2_PRESSED,
-} button_event_t;
-
-typedef struct {
-  char *content;
-} uart_writer_msg_t;
-
-typedef struct {
-  osMessageQueueId_t qid;
-} uart_writer_args_t;
-
-typedef struct {
-  osThreadAttr_t attr;
-  osThreadId_t tid;
-  uart_writer_args_t args;
-} uart_writer_t;
-
-typedef struct {
-  osThreadAttr_t attr;
-  osThreadId_t tid;
-} uart_reader_t;
-
-typedef struct {
-  osMessageQueueId_t qid;
-  int16_t target_speed;
-} speed_controller_args_t;
-
-typedef struct {
-  osThreadAttr_t attr;
-  osThreadId_t tid;
-  speed_controller_args_t args;
-} speed_controller_t;
-
 const char *name = "Osewa";
 const char *version = "0.0.1";
 
@@ -63,10 +30,18 @@ uart_writer_t writer = {.attr = {.name = "UART Writer"}};
 uart_reader_t reader = {.attr = {.name = "UART Reader"}};
 speed_controller_t speed_ctl = {.attr = {.name = "Speed Controller"},
                                 .args = {.target_speed = TARGET_SPEED}};
+track_manager_t track = {.attr = {.name = "Track Manager"}};
+obstacle_watcher_t obstacle = {.attr = {.name = "Obstacle Watcher"}};
 
 void initMessage(void) {
-  UARTprintf("%s: Autoguided Vehicle Controller\n", name);
+  UARTprintf("\r\n%s: Autoguided Vehicle Controller\n", name);
   UARTprintf("Version: %s\n", version);
+  UARTFlush();
+}
+
+void printThreadInit(osThreadId_t tid) {
+  const char *name = osThreadGetName(tid);
+  UARTprintf("%s: initialized\n", name);
   UARTFlush();
 }
 
@@ -74,11 +49,9 @@ void UARTWriter(void *arg) {
   uart_writer_t *w = (uart_writer_t *)arg;
   uart_writer_msg_t msg;
 
-  const char *name = osThreadGetName(w->tid);
   osMessageQueueId_t queue_id = w->args.qid;
 
-  UARTprintf("%s: initialized;\n", name);
-  UARTFlush();
+  printThreadInit(w->tid);
 
   for (;;) {
     osMessageQueueGet(queue_id, &msg, NULL, osWaitForever);
@@ -96,13 +69,10 @@ void SpeedController(void *arg) {
   button_event_t event;
   uart_writer_msg_t msg;
 
-  const char *name = osThreadGetName(s->tid);
   osMessageQueueId_t queue_id = s->args.qid;
-
   osTimerId_t timer = osTimerNew(stopAccelarating, osTimerOnce, NULL, NULL);
 
-  UARTprintf("%s: initialized;\n", name);
-  UARTFlush();
+  printThreadInit(s->tid);
 
   for (;;) {
     osMessageQueueGet(queue_id, &event, NULL, osWaitForever);
@@ -115,6 +85,31 @@ void SpeedController(void *arg) {
       osMessageQueuePut(writer.args.qid, &msg, MSG_PRIO, osWaitForever);
       osTimerStart(timer, s->args.target_speed * SECOND);
     }
+  }
+}
+
+void TrackManager(void *arg) {
+  track_manager_t *t = (track_manager_t *)arg;
+  uart_writer_msg_t msg;
+  track_manager_msg_t reading;
+
+  printThreadInit(t->tid);
+
+  for (;;) {
+    msg.content = "Prf;";
+    osMessageQueuePut(writer.args.qid, &msg, MSG_PRIO, osWaitForever);
+    osMessageQueueGet(t->args.qid, &reading, MSG_PRIO, osWaitForever);
+  }
+}
+
+void ObstacleWatcher(void *arg) {
+  obstacle_watcher_t *o = (obstacle_watcher_t *)arg;
+  obstacle_watcher_msg_t reading;
+
+  printThreadInit(o->tid);
+
+  for (;;) {
+    osMessageQueueGet(o->args.qid, &reading, MSG_PRIO, osWaitForever);
   }
 }
 
@@ -147,19 +142,45 @@ void GPIOJ_Handler(void) {
   }
 }
 
+bool isdigit(char c) { return c >= '0' && c <= '9'; }
+
 void UARTReader(void *arg) {
+  uart_reader_t *r = (uart_reader_t *)arg;
+  printThreadInit(r->tid);
+
   char buffer[32];
   char c;
-  uint8_t i;
+  int i;
   for (;;) {
-    if (UARTPeek(';')) {
+    if (UARTPeek('L') && UARTPeek('.')) {
       i = 0;
-      while ((c = UARTgetc()) != ';') {
+
+      while ((c = UARTgetc()) != '-')
+        ; // Skip until -
+
+      while (1) {
+        c = UARTgetc();
+        if (!isdigit(c) && c != '.')
+          break;
         buffer[i++] = c;
       }
+
       buffer[i] = '\0';
-      float reading = ustrtof(buffer, NULL);
-      UARTprintf("\nreading: %d\n", reading);
+      double d = atof(buffer);
+
+      UARTprintf("\nreading: %d\n", d);
+    }
+  }
+}
+
+void waitForVehicle(void) {
+  char buffer[6];
+  UARTprintf("R;");
+  while(1) {
+    UARTgets(buffer,6);
+    if(ustrcmp(buffer,"inicio") == 0) {
+      // equal
+      break;
     }
   }
 }
@@ -170,6 +191,8 @@ void main(void) {
   ButtonIntEnable(USW1 | USW2);
   initMessage();
 
+  //waitForVehicle();
+  
   if (osKernelGetState() == osKernelInactive)
     osKernelInitialize();
 
@@ -182,6 +205,14 @@ void main(void) {
   speed_ctl.args.qid =
       osMessageQueueNew(QUEUE_SIZE, sizeof(button_event_t), NULL);
   speed_ctl.tid = osThreadNew(SpeedController, &speed_ctl, &speed_ctl.attr);
+
+  track.args.qid =
+      osMessageQueueNew(QUEUE_SIZE, sizeof(track_manager_msg_t), NULL);
+  track.tid = osThreadNew(TrackManager, &track, &track.attr);
+
+  obstacle.args.qid =
+      osMessageQueueNew(QUEUE_SIZE, sizeof(obstacle_watcher_t), NULL);
+  obstacle.tid = osThreadNew(ObstacleWatcher, &obstacle, &obstacle.attr);
 
   if (osKernelGetState() == osKernelReady)
     osKernelStart();
