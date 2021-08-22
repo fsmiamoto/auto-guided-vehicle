@@ -33,6 +33,8 @@ void UARTInit(void) {
 
 void UART0_Handler(void) { UARTStdioIntHandler(); }
 
+bool UARTCharsAvailable(void) { return UARTCharsAvail(UART0_BASE); }
+
 // Print and then flush
 // TODO: Debug
 void UARTPrintAndFlush(const char *fmt, ...) {
