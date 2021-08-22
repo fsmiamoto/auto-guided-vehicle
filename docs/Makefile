@@ -12,7 +12,10 @@ domain: $(IMG)
 arch: $(IMG)
 	pandoc $(PFLAGS) architecture.md -o ../arquitetura/arquitetura.pdf
 
+detailed: $(IMG)
+	pandoc $(PFLAGS) detailed.md -o ../detalhado/detalhado.pdf
+
 clean:
 	$(RM) $(TARGET)
 
-.PHONY: clean arch domain
+.PHONY: clean arch domain detailed
