@@ -18,7 +18,8 @@
 
 #define DEBOUNCE_TICKS 300U
 
-#define TARGET_SPEED 5 // m/s
+#define SPEED_INCR 5 // m/s
+#define MAX_SPEED 10 // m/s
 
 // Push buttons are active in 0
 #define ButtonPressed(b) !ButtonRead(b)
@@ -29,7 +30,7 @@ const char *version = "0.0.1";
 uart_writer_t writer = {.attr = {.name = "UART Writer"}};
 uart_reader_t reader = {.attr = {.name = "UART Reader"}};
 speed_controller_t speed_ctl = {.attr = {.name = "Speed Controller"},
-                                .args = {.target_speed = TARGET_SPEED}};
+                                .args = {.target_speed = 0}};
 track_manager_t track = {.attr = {.name = "Track Manager"}};
 obstacle_watcher_t obstacle = {.attr = {.name = "Obstacle Watcher"}};
 
@@ -59,9 +60,12 @@ void UARTWriter(void *arg) {
   }
 }
 
-void stopAccelarating(void *arg) {
-  uart_writer_msg_t msg = {.content = "A0;"};
-  osMessageQueuePut(writer.args.qid, &msg, MSG_PRIO, NO_WAIT);
+void stopAccelerating(void *arg) {
+  if (speed_ctl.args.target_speed != 0) {
+    uart_writer_msg_t msg = {.content = "A0;"};
+    osMessageQueuePut(writer.args.qid, &msg, MSG_PRIO, NO_WAIT);
+    speed_ctl.isAccelerating = false;
+  }
 }
 
 void SpeedController(void *arg) {
@@ -70,7 +74,7 @@ void SpeedController(void *arg) {
   uart_writer_msg_t msg;
 
   osMessageQueueId_t queue_id = s->args.qid;
-  osTimerId_t timer = osTimerNew(stopAccelarating, osTimerOnce, NULL, NULL);
+  osTimerId_t timer = osTimerNew(stopAccelerating, osTimerOnce, NULL, NULL);
 
   printThreadInit(s->tid);
 
@@ -81,22 +85,32 @@ void SpeedController(void *arg) {
       msg.content = "S;";
       osMessageQueuePut(writer.args.qid, &msg, MSG_PRIO, osWaitForever);
     } else {
+      // Ignore if would exceed speed limit
+      if (s->args.target_speed + SPEED_INCR > MAX_SPEED)
+        continue;
+
+      // Already accelerating, ignore
+      if (s->isAccelerating)
+        continue;
+
+      s->isAccelerating = true;
+      s->args.target_speed += SPEED_INCR;
       msg.content = "A1;";
       osMessageQueuePut(writer.args.qid, &msg, MSG_PRIO, osWaitForever);
-      osTimerStart(timer, s->args.target_speed * SECOND);
+      osTimerStart(timer, SPEED_INCR * SECOND);
     }
   }
 }
 
 void TrackManager(void *arg) {
   track_manager_t *t = (track_manager_t *)arg;
-  uart_writer_msg_t msg;
+  uart_writer_msg_t msg = {.content = "Prf;"};
   track_manager_msg_t reading;
 
   printThreadInit(t->tid);
 
   for (;;) {
-    msg.content = "Prf;";
+    osDelay(100);
     osMessageQueuePut(writer.args.qid, &msg, MSG_PRIO, osWaitForever);
     osMessageQueueGet(t->args.qid, &reading, MSG_PRIO, osWaitForever);
   }
@@ -148,10 +162,14 @@ void UARTReader(void *arg) {
   uart_reader_t *r = (uart_reader_t *)arg;
   printThreadInit(r->tid);
 
-  char buffer[32];
-  char c;
+  char c, buffer[32];
   int i;
+
   for (;;) {
+    if (!UARTCharsAvailable()) {
+      continue;
+    }
+
     if (UARTPeek('L') && UARTPeek('.')) {
       i = 0;
 
@@ -166,7 +184,7 @@ void UARTReader(void *arg) {
       }
 
       buffer[i] = '\0';
-      double d = atof(buffer);
+      double d = ustrtof(buffer, NULL);
 
       UARTprintf("\nreading: %d\n", d);
     }
@@ -174,15 +192,9 @@ void UARTReader(void *arg) {
 }
 
 void waitForVehicle(void) {
-  char buffer[6];
   UARTprintf("R;");
-  while(1) {
-    UARTgets(buffer,6);
-    if(ustrcmp(buffer,"inicio") == 0) {
-      // equal
-      break;
-    }
-  }
+  UARTFlush();
+  // TODO: Actually wait for 'inicio' message here.
 }
 
 void main(void) {
@@ -191,8 +203,8 @@ void main(void) {
   ButtonIntEnable(USW1 | USW2);
   initMessage();
 
-  //waitForVehicle();
-  
+  waitForVehicle();
+
   if (osKernelGetState() == osKernelInactive)
     osKernelInitialize();
 

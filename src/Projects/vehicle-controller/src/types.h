@@ -1,6 +1,8 @@
 #ifndef __TYPES__H
 #define __TYPES__H
 #include "cmsis_os2.h"
+#include <stdbool.h>
+
 typedef enum {
   SW1_PRESSED,
   SW2_PRESSED,
@@ -33,6 +35,8 @@ typedef struct {
 typedef struct {
   osThreadAttr_t attr;
   osThreadId_t tid;
+  bool isAccelerating;
+  bool isBraking;
   speed_controller_args_t args;
 } speed_controller_t;
 
