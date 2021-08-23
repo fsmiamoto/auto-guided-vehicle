@@ -8,5 +8,9 @@ extern track_manager_t track;
 extern obstacle_watcher_t obstacle;
 
 void SpeedController(void *arg);
+void UARTReader(void *arg);
+void UARTWriter(void *arg);
+void TrackManager(void *arg);
+void ObstacleWatcher(void *arg);
 
 #endif

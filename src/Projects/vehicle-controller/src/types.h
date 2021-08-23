@@ -42,6 +42,8 @@ typedef struct {
 
 typedef struct {
   osMessageQueueId_t qid;
+  double reference;
+  double gain;
 } track_manager_args_t;
 
 typedef struct {

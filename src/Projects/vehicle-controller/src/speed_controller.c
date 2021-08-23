@@ -3,7 +3,7 @@
 
 void printThreadInit(osThreadId_t tid);
 
-void stopAccelerating(void *arg) {
+static void stopAccelerating(void *arg) {
   if (speed_ctl.args.target_speed != 0) {
     uart_writer_msg_t msg = {.content = "A0;"};
     osMessageQueuePut(writer.args.qid, &msg, MSG_PRIO, NO_WAIT);

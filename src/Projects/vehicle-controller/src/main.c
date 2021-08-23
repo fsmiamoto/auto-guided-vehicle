@@ -17,10 +17,12 @@ const char *version = "0.0.1";
 
 uart_writer_t writer = {.attr = {.name = "UART Writer"}};
 uart_reader_t reader = {.attr = {.name = "UART Reader"}};
+obstacle_watcher_t obstacle = {.attr = {.name = "Obstacle Watcher"}};
 speed_controller_t speed_ctl = {.attr = {.name = "Speed Controller"},
                                 .args = {.target_speed = 0}};
-track_manager_t track = {.attr = {.name = "Track Manager"}};
-obstacle_watcher_t obstacle = {.attr = {.name = "Obstacle Watcher"}};
+track_manager_t track = {
+    .attr = {.name = "Track Manager"},
+    .args = {.reference = TRACK_CENTER_REFERENCE, .gain = TRACK_MANAGER_GAIN}};
 
 void initMessage(void) {
   UARTprintf("\r\n%s: Autoguided Vehicle Controller\n", name);
@@ -50,26 +52,44 @@ void UARTWriter(void *arg) {
 
 void TrackManager(void *arg) {
   track_manager_t *t = (track_manager_t *)arg;
-  uart_writer_msg_t msg = {.content = ";Prf;"};
+  uart_writer_msg_t readingRequest = {.content = ";Prf;"};
+  uart_writer_msg_t turnRequest;
   track_manager_msg_t reading;
 
+  char buffer[32];
   printThreadInit(t->tid);
 
   for (;;) {
     osDelay(1000);
-    osMessageQueuePut(writer.args.qid, &msg, MSG_PRIO, osWaitForever);
+    osMessageQueuePut(writer.args.qid, &readingRequest, MSG_PRIO,
+                      osWaitForever);
     osMessageQueueGet(t->args.qid, &reading, MSG_PRIO, osWaitForever);
+
+    double turn = t->args.gain * (t->args.reference - reading.sensor_reading);
+    usnprintf(buffer, 32, ";V%d;", turn);
+    turnRequest.content = buffer;
+
+    osMessageQueuePut(writer.args.qid, &turnRequest, MSG_PRIO, osWaitForever);
   }
+}
+
+static void returnToCenter(void *arg) {
+  track.args.reference = TRACK_CENTER_REFERENCE;
 }
 
 void ObstacleWatcher(void *arg) {
   obstacle_watcher_t *o = (obstacle_watcher_t *)arg;
   obstacle_watcher_msg_t reading;
 
+  osTimerId_t timer = osTimerNew(returnToCenter, osTimerOnce, NULL, NULL);
+
   printThreadInit(o->tid);
 
   for (;;) {
     osMessageQueueGet(o->args.qid, &reading, MSG_PRIO, osWaitForever);
+    track.args.reference = TRACK_LEFT_REFERENCE;
+    osTimerStart(timer,
+                 OBSTACLE_WARNING_DISTANCE / speed_ctl.args.target_speed);
   }
 }
 

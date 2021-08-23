@@ -12,4 +12,11 @@
 
 #define SPEED_INCR 5 // m/s
 #define MAX_SPEED 10 // m/s
+
+#define TRACK_MANAGER_GAIN 10
+#define TRACK_CENTER_REFERENCE -0.0358
+#define TRACK_LEFT_REFERENCE -2.5
+
+#define OBSTACLE_WARNING_DISTANCE 25
+
 #endif
