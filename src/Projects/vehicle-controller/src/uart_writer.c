@@ -3,7 +3,6 @@
 #include "utils.h"
 #include "utils/uartstdio.h"
 
-
 void UARTWriter(void *arg) {
   uart_writer_t *w = (uart_writer_t *)arg;
   uart_writer_msg_t msg;
@@ -14,6 +13,6 @@ void UARTWriter(void *arg) {
 
   for (;;) {
     osMessageQueueGet(queue_id, &msg, NULL, osWaitForever);
-    UARTprintf("%s\n", msg.content);
+    UARTprintf("\n%s", msg.content);
   }
 }

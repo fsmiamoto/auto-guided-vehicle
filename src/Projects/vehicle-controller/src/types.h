@@ -42,6 +42,7 @@ typedef struct {
 
 typedef struct {
   osMessageQueueId_t qid;
+  uint16_t period;
   double reference;
   double gain;
 } track_manager_args_t;

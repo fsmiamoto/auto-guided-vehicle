@@ -4,7 +4,6 @@
 #include "utils.h"
 #include "utils/ustdlib.h"
 
-
 void TrackManager(void *arg) {
   track_manager_t *t = (track_manager_t *)arg;
   uart_writer_msg_t readingRequest = {.content = ";Prf;"};
@@ -15,7 +14,7 @@ void TrackManager(void *arg) {
   printThreadInit(t->tid);
 
   for (;;) {
-    osDelay(1000);
+    osDelay(t->args.period);
     osMessageQueuePut(writer.args.qid, &readingRequest, MSG_PRIO,
                       osWaitForever);
     osMessageQueueGet(t->args.qid, &reading, MSG_PRIO, osWaitForever);

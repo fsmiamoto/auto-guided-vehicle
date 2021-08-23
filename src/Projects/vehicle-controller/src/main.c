@@ -20,9 +20,10 @@ uart_reader_t reader = {.attr = {.name = "UART Reader"}};
 obstacle_watcher_t obstacle = {.attr = {.name = "Obstacle Watcher"}};
 speed_controller_t speed_ctl = {.attr = {.name = "Speed Controller"},
                                 .args = {.target_speed = 0}};
-track_manager_t track = {
-    .attr = {.name = "Track Manager"},
-    .args = {.reference = TRACK_CENTER_REFERENCE, .gain = TRACK_MANAGER_GAIN}};
+track_manager_t track = {.attr = {.name = "Track Manager"},
+                         .args = {.reference = TRACK_CENTER_REFERENCE,
+                                  .gain = TRACK_MANAGER_GAIN,
+                                  .period = TRACK_MANAGER_PERIOD}};
 
 void main(void) {
   UARTInit();
@@ -31,8 +32,8 @@ void main(void) {
 
   waitForVehicleInit();
 
-  UARTprintf("\r\n%s: Autoguided Vehicle Controller\n", name);
-  UARTprintf("Version: %s\n", version);
+  UARTprintf("\r\n\n%s: Autoguided Vehicle Controller\n", name);
+  UARTprintf("Version: %s\n\n", version);
 
   if (osKernelGetState() == osKernelInactive)
     osKernelInitialize();
@@ -54,7 +55,7 @@ void main(void) {
   obstacle.args.qid =
       osMessageQueueNew(QUEUE_SIZE, sizeof(obstacle_watcher_t), NULL);
   obstacle.tid = osThreadNew(ObstacleWatcher, &obstacle, &obstacle.attr);
-
+  
   if (osKernelGetState() == osKernelReady)
     osKernelStart();
 

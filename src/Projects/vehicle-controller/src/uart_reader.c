@@ -13,7 +13,7 @@ void UARTReader(void *arg) {
   int i;
 
   for (;;) {
-    if (UARTPeek('L') && UARTPeek('.')) {
+    if (UARTPeek('L') && UARTPeek('r') && UARTPeek('f')) {
       i = 0;
 
       while (!isdigit((c = UARTgetc())))
@@ -29,7 +29,7 @@ void UARTReader(void *arg) {
 
       buffer[i] = '\0';
 
-      UARTprintf("received: %s", buffer);
+      UARTprintf("\nreceived: %s\n", buffer);
     }
   }
 }
