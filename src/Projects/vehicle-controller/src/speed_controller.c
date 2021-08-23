@@ -1,7 +1,6 @@
 #include "constants.h"
 #include "tasks.h"
-
-void printThreadInit(osThreadId_t tid);
+#include "utils.h"
 
 static void stopAccelerating(void *arg) {
   if (speed_ctl.args.target_speed != 0) {

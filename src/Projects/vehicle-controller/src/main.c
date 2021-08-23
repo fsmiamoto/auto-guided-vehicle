@@ -24,18 +24,6 @@ track_manager_t track = {
     .attr = {.name = "Track Manager"},
     .args = {.reference = TRACK_CENTER_REFERENCE, .gain = TRACK_MANAGER_GAIN}};
 
-void initMessage(void) {
-  UARTprintf("\r\n%s: Autoguided Vehicle Controller\n", name);
-  UARTprintf("Version: %s\n", version);
-  UARTFlush();
-}
-
-void printThreadInit(osThreadId_t tid) {
-  const char *name = osThreadGetName(tid);
-  UARTprintf("%s: initialized\n", name);
-  UARTFlush();
-}
-
 void UARTWriter(void *arg) {
   uart_writer_t *w = (uart_writer_t *)arg;
   uart_writer_msg_t msg;
@@ -47,49 +35,6 @@ void UARTWriter(void *arg) {
   for (;;) {
     osMessageQueueGet(queue_id, &msg, NULL, osWaitForever);
     UARTprintf("%s\n", msg.content);
-  }
-}
-
-void TrackManager(void *arg) {
-  track_manager_t *t = (track_manager_t *)arg;
-  uart_writer_msg_t readingRequest = {.content = ";Prf;"};
-  uart_writer_msg_t turnRequest;
-  track_manager_msg_t reading;
-
-  char buffer[32];
-  printThreadInit(t->tid);
-
-  for (;;) {
-    osDelay(1000);
-    osMessageQueuePut(writer.args.qid, &readingRequest, MSG_PRIO,
-                      osWaitForever);
-    osMessageQueueGet(t->args.qid, &reading, MSG_PRIO, osWaitForever);
-
-    double turn = t->args.gain * (t->args.reference - reading.sensor_reading);
-    usnprintf(buffer, 32, ";V%d;", turn);
-    turnRequest.content = buffer;
-
-    osMessageQueuePut(writer.args.qid, &turnRequest, MSG_PRIO, osWaitForever);
-  }
-}
-
-static void returnToCenter(void *arg) {
-  track.args.reference = TRACK_CENTER_REFERENCE;
-}
-
-void ObstacleWatcher(void *arg) {
-  obstacle_watcher_t *o = (obstacle_watcher_t *)arg;
-  obstacle_watcher_msg_t reading;
-
-  osTimerId_t timer = osTimerNew(returnToCenter, osTimerOnce, NULL, NULL);
-
-  printThreadInit(o->tid);
-
-  for (;;) {
-    osMessageQueueGet(o->args.qid, &reading, MSG_PRIO, osWaitForever);
-    track.args.reference = TRACK_LEFT_REFERENCE;
-    osTimerStart(timer,
-                 OBSTACLE_WARNING_DISTANCE / speed_ctl.args.target_speed);
   }
 }
 
@@ -130,7 +75,9 @@ void main(void) {
   UARTInit();
   ButtonInit(USW1 | USW2);
   ButtonIntEnable(USW1 | USW2);
-  initMessage();
+
+  UARTprintf("\r\n%s: Autoguided Vehicle Controller\n", name);
+  UARTprintf("Version: %s\n", version);
 
   waitForVehicle();
 
