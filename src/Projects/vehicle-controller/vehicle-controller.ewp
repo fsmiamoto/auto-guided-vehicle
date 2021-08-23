@@ -1055,6 +1055,9 @@
         <name>$PROJ_DIR$\..\..\TivaWare_C_Series-2.1.4.178\driverlib\ewarm\Exe\driverlib.a</name>
     </file>
     <file>
+        <name>$PROJ_DIR$\src\gpio.c</name>
+    </file>
+    <file>
         <name>$PROJ_DIR$\src\main.c</name>
     </file>
     <file>
@@ -1065,6 +1068,9 @@
     </file>
     <file>
         <name>$PROJ_DIR$\src\rtx_lib.c</name>
+    </file>
+    <file>
+        <name>$PROJ_DIR$\src\speed_controller.c</name>
     </file>
     <file>
         <name>$PROJ_DIR$\src\startup_TM4C1294.s</name>
@@ -1080,5 +1086,8 @@
     </file>
     <file>
         <name>$PROJ_DIR$\..\..\TivaWare_C_Series-2.1.4.178\utils\ustdlib.c</name>
+    </file>
+    <file>
+        <name>$PROJ_DIR$\src\utils.c</name>
     </file>
 </project>

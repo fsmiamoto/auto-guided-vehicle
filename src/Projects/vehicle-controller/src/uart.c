@@ -29,6 +29,9 @@ void UARTInit(void) {
   GPIOPinConfigure(GPIO_PA0_U0RX);
   GPIOPinConfigure(GPIO_PA1_U0TX);
   GPIOPinTypeUART(GPIO_PORTA_BASE, GPIO_PIN_0 | GPIO_PIN_1);
+  
+  UARTFlushRx();
+  UARTFlushTx(true);
 }
 
 void UART0_Handler(void) { UARTStdioIntHandler(); }
