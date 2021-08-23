@@ -7,6 +7,8 @@ bool isdigit(char c);
 
 void printThreadInit(osThreadId_t tid);
 
+void waitForVehicleInit(void);
+
 // Push buttons are active in 0
 #define ButtonPressed(b) !ButtonRead(b)
 

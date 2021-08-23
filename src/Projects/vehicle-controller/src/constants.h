@@ -2,6 +2,7 @@
 #define __CONSTANTS__H
 
 #define QUEUE_SIZE 10
+#define BUFFER_SIZE 32
 
 #define SECOND 1000
 

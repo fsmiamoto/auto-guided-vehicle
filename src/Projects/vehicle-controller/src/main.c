@@ -24,62 +24,15 @@ track_manager_t track = {
     .attr = {.name = "Track Manager"},
     .args = {.reference = TRACK_CENTER_REFERENCE, .gain = TRACK_MANAGER_GAIN}};
 
-void UARTWriter(void *arg) {
-  uart_writer_t *w = (uart_writer_t *)arg;
-  uart_writer_msg_t msg;
-
-  osMessageQueueId_t queue_id = w->args.qid;
-
-  printThreadInit(w->tid);
-
-  for (;;) {
-    osMessageQueueGet(queue_id, &msg, NULL, osWaitForever);
-    UARTprintf("%s\n", msg.content);
-  }
-}
-
-void UARTReader(void *arg) {
-  uart_reader_t *r = (uart_reader_t *)arg;
-  printThreadInit(r->tid);
-
-  char c, buffer[32];
-  int i;
-
-  for (;;) {
-    if (UARTPeek('L') && UARTPeek('.')) {
-      i = 0;
-
-      while (!isdigit((c = UARTgetc())))
-        ; // Skip until first digit
-
-      // TODO: Check for index boundary
-      while (1) {
-        c = UARTgetc();
-        if (!isdigit(c) && c != '.')
-          break;
-        buffer[i++] = c;
-      }
-
-      buffer[i] = '\0';
-    }
-  }
-}
-
-void waitForVehicle(void) {
-  UARTprintf(";R;\r");
-  UARTFlush();
-  // TODO: Actually wait for 'inicio' message here.
-}
-
 void main(void) {
   UARTInit();
   ButtonInit(USW1 | USW2);
   ButtonIntEnable(USW1 | USW2);
 
+  waitForVehicleInit();
+
   UARTprintf("\r\n%s: Autoguided Vehicle Controller\n", name);
   UARTprintf("Version: %s\n", version);
-
-  waitForVehicle();
 
   if (osKernelGetState() == osKernelInactive)
     osKernelInitialize();
