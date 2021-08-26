@@ -16,19 +16,19 @@
                 <debug>0</debug>
                 <option>
                     <name>BrowseInfoPath</name>
-                    <state>CM0\BrowseInfo</state>
+                    <state>CM4F\BrowseInfo</state>
                 </option>
                 <option>
                     <name>ExePath</name>
-                    <state>CM0\Exe</state>
+                    <state>CM4F\Exe</state>
                 </option>
                 <option>
                     <name>ObjPath</name>
-                    <state>CM0\Obj</state>
+                    <state>CM4F\Obj</state>
                 </option>
                 <option>
                     <name>ListPath</name>
-                    <state>CM0\List</state>
+                    <state>CM4F\List</state>
                 </option>
                 <option>
                     <name>GEndianMode</name>
@@ -99,7 +99,7 @@
                 <option>
                     <name>GBECoreSlave</name>
                     <version>30</version>
-                    <state>34</state>
+                    <state>39</state>
                 </option>
                 <option>
                     <name>OGUseCmsis</name>
@@ -116,7 +116,7 @@
                 <option>
                     <name>CoreVariant</name>
                     <version>30</version>
-                    <state>34</state>
+                    <state>39</state>
                 </option>
                 <option>
                     <name>GFPUDeviceSlave</name>
@@ -125,12 +125,12 @@
                 <option>
                     <name>FPU2</name>
                     <version>0</version>
-                    <state>0</state>
+                    <state>4</state>
                 </option>
                 <option>
                     <name>NrRegs</name>
                     <version>0</version>
-                    <state>0</state>
+                    <state>1</state>
                 </option>
                 <option>
                     <name>NEON</name>
@@ -139,7 +139,7 @@
                 <option>
                     <name>GFPUCoreSlave2</name>
                     <version>30</version>
-                    <state>34</state>
+                    <state>39</state>
                 </option>
                 <option>
                     <name>OGCMSISPackSelectDevice</name>
@@ -180,7 +180,7 @@
                 </option>
                 <option>
                     <name>DSPExtension</name>
-                    <state>0</state>
+                    <state>1</state>
                 </option>
                 <option>
                     <name>TrustZone</name>
@@ -211,6 +211,7 @@
                 <option>
                     <name>CCDefines</name>
                     <state>NDEBUG</state>
+                    <state>CMSIS_device_header="ARMCM4_FP.h"</state>
                 </option>
                 <option>
                     <name>CCPreprocFile</name>
@@ -331,7 +332,12 @@
                 </option>
                 <option>
                     <name>CCIncludePath2</name>
-                    <state></state>
+                    <state>$PROJ_DIR$\..\..\..\Config</state>
+                    <state>$PROJ_DIR$\..\..\..\Include</state>
+                    <state>$PROJ_DIR$\..\..\..\..\Include</state>
+                    <state>$PROJ_DIR$\..\..\..\..\..\Core\Include</state>
+                    <state>$PROJ_DIR$</state>
+                    <state>$PROJ_DIR$\..\..\..\..\..\..\Device\ARM\ARMCM4\Include</state>
                 </option>
                 <option>
                     <name>CCStdIncCheck</name>
@@ -651,7 +657,7 @@
             <data>
                 <extensions></extensions>
                 <cmdline></cmdline>
-                <hasPrio>0</hasPrio>
+                <hasPrio>128</hasPrio>
                 <buildSequence>inputOutputBased</buildSequence>
             </data>
         </settings>
@@ -1038,7 +1044,7 @@
                 </option>
                 <option>
                     <name>IarchiveOutput</name>
-                    <state>$PROJ_DIR$\..\RTX_CM0.a</state>
+                    <state>$PROJ_DIR$\CM4F\Exe\RTX_CM.a</state>
                 </option>
             </data>
         </settings>
