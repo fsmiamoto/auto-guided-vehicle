@@ -4,7 +4,7 @@
 
 static void stopAccelerating(void *arg) {
   if (speed_ctl.args.target_speed != 0) {
-    uart_writer_msg_t msg = {.content = "A0;"};
+    uart_writer_msg_t msg = {.content = ";A0;"};
     osMessageQueuePut(writer.args.qid, &msg, MSG_PRIO, NO_WAIT);
   }
   speed_ctl.isAccelerating = false;
@@ -37,7 +37,7 @@ void SpeedController(void *arg) {
 
       s->isAccelerating = true;
       s->args.target_speed += SPEED_INCR;
-      msg.content = ";A1;";
+      msg.content = ";A3;";
       osMessageQueuePut(writer.args.qid, &msg, MSG_PRIO, osWaitForever);
       osTimerStart(timer, SPEED_INCR * SECOND);
     }

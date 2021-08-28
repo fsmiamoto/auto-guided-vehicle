@@ -12,10 +12,11 @@
 #define DEBOUNCE_TICKS 300U
 
 #define SPEED_INCR 5 // m/s
-#define MAX_SPEED 60 // m/s
+#define MAX_SPEED 15 // m/s
 
-#define TRACK_MANAGER_GAIN 10
-#define TRACK_MANAGER_PERIOD 50 // ms
+#define UART_READER_DEBOUNCE 100 // ms
+
+#define TRACK_MANAGER_PERIOD 10 // ms
 #define TRACK_CENTER_REFERENCE -0.0358
 #define TRACK_LEFT_REFERENCE -2.5
 

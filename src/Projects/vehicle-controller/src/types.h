@@ -43,8 +43,7 @@ typedef struct {
 typedef struct {
   osMessageQueueId_t qid;
   uint16_t period;
-  double reference;
-  double gain;
+  float reference;
 } track_manager_args_t;
 
 typedef struct {
@@ -54,7 +53,7 @@ typedef struct {
 } track_manager_t;
 
 typedef struct {
-  double sensor_reading;
+  float rf_reading;
 } track_manager_msg_t;
 
 typedef struct {
@@ -68,7 +67,7 @@ typedef struct {
 } obstacle_watcher_t;
 
 typedef struct {
-  double sensor_reading;
+  float sensor_reading;
 } obstacle_watcher_msg_t;
 
 #endif

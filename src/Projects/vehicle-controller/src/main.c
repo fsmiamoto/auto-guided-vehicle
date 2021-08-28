@@ -21,8 +21,7 @@ obstacle_watcher_t obstacle = {.attr = {.name = "Obstacle Watcher"}};
 speed_controller_t speed_ctl = {.attr = {.name = "Speed Controller"},
                                 .args = {.target_speed = 0}};
 track_manager_t track = {.attr = {.name = "Track Manager"},
-                         .args = {.reference = TRACK_CENTER_REFERENCE,
-                                  .gain = TRACK_MANAGER_GAIN,
+                         .args = {.reference = TRACK_LEFT_REFERENCE,
                                   .period = TRACK_MANAGER_PERIOD}};
 
 void main(void) {
@@ -55,7 +54,7 @@ void main(void) {
   obstacle.args.qid =
       osMessageQueueNew(QUEUE_SIZE, sizeof(obstacle_watcher_t), NULL);
   obstacle.tid = osThreadNew(ObstacleWatcher, &obstacle, &obstacle.attr);
-  
+
   if (osKernelGetState() == osKernelReady)
     osKernelStart();
 
