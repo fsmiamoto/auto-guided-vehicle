@@ -2,6 +2,7 @@
 #include "uart.h"
 #include "utils.h"
 #include "utils/uartstdio.h"
+#include "constants.h"
 
 void UARTWriter(void *arg) {
   uart_writer_t *w = (uart_writer_t *)arg;
@@ -12,7 +13,7 @@ void UARTWriter(void *arg) {
   printThreadInit(w->tid);
 
   for (;;) {
-    osMessageQueueGet(queue_id, &msg, NULL, osWaitForever);
+    osMessageQueueGet(queue_id, &msg, MSG_PRIO, osWaitForever);
     UARTprintf("\n%s", msg.content);
   }
 }
