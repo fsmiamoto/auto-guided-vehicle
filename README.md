@@ -6,6 +6,9 @@ The objective is to develop an RTOS based system that is able to guide a simulat
 
 ![Screenshot of simulator running](./simulator/screenshot.png)
 
+## Architecture
+
+![](./docs/img/architecture.png)
 
 > Dedicated to our greatly missed Professor Hugo Vieira.
 His lessons and dedication will always be remembered.
