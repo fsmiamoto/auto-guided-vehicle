@@ -7,9 +7,11 @@
 #include "utils/ustdlib.h"
 #include <stdio.h>
 
-#define Kp 4.0
-#define Ki 2.4
+#define Kp 6.0
+#define Ki 1.2
 #define Kd 12.0
+
+#define TIMEOUT 200
 
 void TrackManager(void *arg) {
   track_manager_t *t = (track_manager_t *)arg;
@@ -33,7 +35,12 @@ void TrackManager(void *arg) {
 
     osMessageQueuePut(writer.args.qid, &readingRequest, MSG_PRIO,
                       osWaitForever);
-    osMessageQueueGet(t->args.qid, &reading, MSG_PRIO, osWaitForever);
+
+    osStatus_t status =
+        osMessageQueueGet(t->args.qid, &reading, MSG_PRIO, TIMEOUT);
+    if (status != osOK) {
+      continue;
+    }
 
     error = t->args.reference - reading.rf_reading;
 
