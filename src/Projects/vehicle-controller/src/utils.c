@@ -1,6 +1,7 @@
 #include "utils.h"
 #include "cmsis_os2.h"
 #include "constants.h"
+#include "driverlib/uart.h"
 #include "tasks.h"
 #include "types.h"
 #include "uart.h"
@@ -17,7 +18,9 @@ void waitForVehicleInit(void) {
   UARTprintf(";R;\r");
   UARTFlush();
 
-  // FIXME: Actually wait for 'inicio' message here, this is ugly
-  for (int i = 0; i < 10000000; i++)
+  // Wait until `inicio` is received
+  while (UARTRxBytesAvail() < 6)
     ;
+
+  UARTFlushRx();
 }
