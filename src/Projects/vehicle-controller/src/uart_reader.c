@@ -44,7 +44,7 @@ void UARTReader(void *arg) {
     c = UARTgetc();
     switch (c) {
     case 'r':
-      // RF sensor reading - Lrf-?[0-9]+.[0-9]+
+      // RF sensor reading - /Lrf-?[0-9]+.[0-9]+/
       UARTgetc(); // ignore 'f'
 
       while (UARTRxBytesAvail() && isValid(c = UARTgetc())) {
@@ -56,7 +56,7 @@ void UARTReader(void *arg) {
       osMessageQueuePut(track.args.qid, &track_msg, MSG_PRIO, osWaitForever);
       break;
     case 'u':
-      // Ultrasonic sensor reading - Lu-?[0-9]+.[0-9]+
+      // Ultrasonic sensor reading - /Lu-?[0-9]+.[0-9]+/
       while (UARTRxBytesAvail() && isValid(c = UARTgetc())) {
         buffer[i++] = c;
       }
