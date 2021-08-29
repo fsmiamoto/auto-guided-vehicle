@@ -7,7 +7,7 @@
 #include "utils/ustdlib.h"
 #include <stdio.h>
 
-#define Kp 6.0
+#define Kp 4.0
 #define Ki 1.2
 #define Kd 12.0
 
@@ -43,6 +43,11 @@ void TrackManager(void *arg) {
     }
 
     error = t->args.reference - reading.rf_reading;
+
+    if ((error > 0 ? error : -error) < 0.001) {
+      error = 0.0;
+      integral = 0.0;
+    }
 
     // PID Control
     derivative = error - last_error;

@@ -29,7 +29,7 @@ void ObstacleWatcher(void *arg) {
       continue;
     }
 
-    if(reading.sensor_reading == -1) continue;
+    if(reading.sensor_reading < 0) continue;
     
     if (reading.sensor_reading <= OBSTACLE_WARNING_DISTANCE && track.args.reference != TRACK_LEFT_REFERENCE) {
       track.args.reference = TRACK_LEFT_REFERENCE;

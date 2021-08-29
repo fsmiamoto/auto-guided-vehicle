@@ -11,9 +11,9 @@
 
 #define DEBOUNCE_TICKS 300U
 
-#define INITIAL_SPEED 0 //m/s
-#define SPEED_INCR 5 // m/s
-#define MAX_SPEED 15 // m/s
+#define INITIAL_SPEED 0 // m/s
+#define SPEED_INCR 5    // m/s
+#define MAX_SPEED 15    // m/s
 
 #define UART_READER_DEBOUNCE 100 // ms
 
@@ -22,6 +22,6 @@
 #define TRACK_LEFT_REFERENCE -2.5
 
 #define OBSTACLE_WARNING_DISTANCE 50
-#define OBSTACLE_WATCHER_PERIOD 700
+#define OBSTACLE_WATCHER_PERIOD osWaitForever
 
 #endif

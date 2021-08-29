@@ -37,7 +37,7 @@ void SpeedController(void *arg) {
 
       s->isAccelerating = true;
       s->args.target_speed += SPEED_INCR;
-      msg.content = ";A2;";
+      msg.content = ";A1;";
       osMessageQueuePut(writer.args.qid, &msg, MSG_PRIO, osWaitForever);
       osTimerStart(timer, SPEED_INCR * SECOND);
     }

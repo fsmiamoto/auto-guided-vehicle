@@ -21,7 +21,7 @@ obstacle_watcher_t obstacle = {.attr = {.name = "Obstacle Watcher"}};
 speed_controller_t speed_ctl = {.attr = {.name = "Speed Controller"},
                                 .args = {.target_speed = INITIAL_SPEED}};
 track_manager_t track = {.attr = {.name = "Track Manager"},
-                         .args = {.reference = TRACK_CENTER_REFERENCE,
+                         .args = {.reference = TRACK_LEFT_REFERENCE,
                                   .period = TRACK_MANAGER_PERIOD}};
 
 void main(void) {
