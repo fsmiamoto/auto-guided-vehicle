@@ -24,7 +24,7 @@ void UARTReader(void *arg) {
   track_manager_msg_t track_msg;
   obstacle_watcher_msg_t obstacle_msg;
 
-  char c, buffer[BUFFER_SIZE];
+  char c, gbuffer[BUFFER_SIZE];
   int i, bytesAvailable;
 
   for (;;) {
@@ -38,8 +38,17 @@ void UARTReader(void *arg) {
     // Message received
     i = 0;
 
-    while ((c = UARTgetc()) != 'L')
+    while (UARTRxBytesAvail() > 0 && (c = UARTgetc()) != 'L')
       ; // Skip until 'L'
+
+    if (c != 'L') {
+      UARTFlushRx();
+      continue;
+    }
+
+    if (UARTRxBytesAvail() < 0) {
+      continue;
+    }
 
     c = UARTgetc();
     switch (c) {
@@ -48,27 +57,28 @@ void UARTReader(void *arg) {
       UARTgetc(); // ignore 'f'
 
       while (UARTRxBytesAvail() && isValid(c = UARTgetc())) {
-        buffer[i++] = c;
+        gbuffer[i++] = c;
       }
-      buffer[i] = '\0';
+      gbuffer[i] = '\0';
 
-      track_msg.rf_reading = toFloat(buffer);
+      track_msg.rf_reading = toFloat(gbuffer);
       osMessageQueuePut(track.args.qid, &track_msg, MSG_PRIO, osWaitForever);
+      UARTFlushRx();
       break;
     case 'u':
       // Ultrasonic sensor reading - /Lu-?[0-9]+.[0-9]+/
       while (UARTRxBytesAvail() && isValid(c = UARTgetc())) {
-        buffer[i++] = c;
+        gbuffer[i++] = c;
       }
-      buffer[i] = '\0';
-      obstacle_msg.sensor_reading = toFloat(buffer);
+      gbuffer[i] = '\0';
+      obstacle_msg.sensor_reading = toFloat(gbuffer);
       osMessageQueuePut(obstacle.args.qid, &obstacle_msg, MSG_PRIO,
                         osWaitForever);
+      UARTFlushRx();
       break;
     default:
-      // Discard
-      while (UARTRxBytesAvail() && isValid(c = UARTgetc()))
-        ;
+      // Discard characters
+      UARTFlushRx();
     }
   }
 }

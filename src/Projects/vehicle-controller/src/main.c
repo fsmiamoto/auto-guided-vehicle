@@ -19,9 +19,9 @@ uart_writer_t writer = {.attr = {.name = "UART Writer"}};
 uart_reader_t reader = {.attr = {.name = "UART Reader"}};
 obstacle_watcher_t obstacle = {.attr = {.name = "Obstacle Watcher"}};
 speed_controller_t speed_ctl = {.attr = {.name = "Speed Controller"},
-                                .args = {.target_speed = 0}};
+                                .args = {.target_speed = INITIAL_SPEED}};
 track_manager_t track = {.attr = {.name = "Track Manager"},
-                         .args = {.reference = TRACK_LEFT_REFERENCE,
+                         .args = {.reference = TRACK_CENTER_REFERENCE,
                                   .period = TRACK_MANAGER_PERIOD}};
 
 void main(void) {
@@ -52,7 +52,7 @@ void main(void) {
   track.tid = osThreadNew(TrackManager, &track, &track.attr);
 
   obstacle.args.qid =
-      osMessageQueueNew(QUEUE_SIZE, sizeof(obstacle_watcher_t), NULL);
+      osMessageQueueNew(QUEUE_SIZE, sizeof(obstacle_watcher_msg_t), NULL);
   obstacle.tid = osThreadNew(ObstacleWatcher, &obstacle, &obstacle.attr);
 
   if (osKernelGetState() == osKernelReady)
