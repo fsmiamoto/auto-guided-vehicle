@@ -15,13 +15,15 @@
 #define SPEED_INCR 5    // m/s
 #define MAX_SPEED 15    // m/s
 
-#define UART_READER_DEBOUNCE 100 // ms
+#define UART_READER_DEBOUNCE 100 // ticks
 
-#define TRACK_MANAGER_PERIOD 10 // ms
+#define TRACK_MANAGER_PERIOD 10        // ticks
+#define TRACK_MANAGER_READ_TIMEOUT 200 // ticks
 #define TRACK_CENTER_REFERENCE -0.0358
 #define TRACK_LEFT_REFERENCE -2.5
 
-#define OBSTACLE_WARNING_DISTANCE 50
-#define OBSTACLE_WATCHER_PERIOD osWaitForever
+#define OBSTACLE_WARNING_DISTANCE 50          // m
+#define OBSTACLE_WATCHER_READ_TIMEOUT 200     // ticks
+#define OBSTACLE_WATCHER_PERIOD osWaitForever // ticks
 
 #endif

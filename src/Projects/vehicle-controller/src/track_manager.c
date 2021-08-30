@@ -7,11 +7,9 @@
 #include "utils/ustdlib.h"
 #include <stdio.h>
 
-#define Kp 4.0
-#define Ki 1.2
-#define Kd 12.0
-
-#define TIMEOUT 200
+#define Kp 2.5
+#define Ki 1.0
+#define Kd 4.0
 
 void TrackManager(void *arg) {
   track_manager_t *t = (track_manager_t *)arg;
@@ -22,6 +20,8 @@ void TrackManager(void *arg) {
   float turn, error, last_error;
   float steering = 0.0, last_steering = 0.0;
   float derivative, integral = 0.0;
+
+  uint32_t now, last_read_tick = osKernelGetTickCount();
 
   char buffer[BUFFER_SIZE];
   printThreadInit(t->tid);
@@ -36,21 +36,21 @@ void TrackManager(void *arg) {
     osMessageQueuePut(writer.args.qid, &readingRequest, MSG_PRIO,
                       osWaitForever);
 
-    osStatus_t status =
-        osMessageQueueGet(t->args.qid, &reading, MSG_PRIO, TIMEOUT);
+    osStatus_t status = osMessageQueueGet(t->args.qid, &reading, MSG_PRIO,
+                                          TRACK_MANAGER_READ_TIMEOUT);
     if (status != osOK) {
       continue;
     }
 
+    now = osKernelGetTickCount();
     error = t->args.reference - reading.rf_reading;
 
-    if ((error > 0 ? error : -error) < 0.001) {
+    if ((error > 0 ? error : -error) < 0.005) {
       error = 0.0;
-      integral = 0.0;
     }
 
     // PID Control
-    derivative = error - last_error;
+    derivative = error - last_error / (float)(now - last_read_tick);
     integral += error;
 
     steering = Kp * error + Ki * integral + Kd * derivative;
@@ -63,5 +63,6 @@ void TrackManager(void *arg) {
 
     last_error = error;
     last_steering = steering;
+    last_read_tick = now;
   }
 }
