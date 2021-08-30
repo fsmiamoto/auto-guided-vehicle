@@ -7,7 +7,7 @@
 #include "utils/ustdlib.h"
 #include <stdio.h>
 
-#define Kp 2.5
+#define Kp 2.3
 #define Ki 1.0
 #define Kd 4.0
 
@@ -45,9 +45,6 @@ void TrackManager(void *arg) {
     now = osKernelGetTickCount();
     error = t->args.reference - reading.rf_reading;
 
-    if ((error > 0 ? error : -error) < 0.005) {
-      error = 0.0;
-    }
 
     // PID Control
     derivative = error - last_error / (float)(now - last_read_tick);
