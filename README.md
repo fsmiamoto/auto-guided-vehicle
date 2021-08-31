@@ -4,11 +4,17 @@ Final project for the Embedded Systems class of [Universidade Tecnológica Feder
 
 The objective is to develop an RTOS based system that is able to guide a simulated vehicle that receives commands through an UART interface.
 
-![Screenshot of simulator running](./simulator/screenshot.png)
+Developed using:
+- [Texas Instruments Tiva C Series TM4C1294 LaunchPad](https://www.ti.com/lit/ml/spmz858/spmz858.pdf)
+- [IAR Embedded Workbench 9](https://www.iar.com/ewarm)
+- [Keil RTX5](https://www2.keil.com/mdk5/cmsis/rtx)
+- [SimSE 2 Simulator](https://pessoal.dainf.ct.utfpr.edu.br/douglasrenaux/index_files/Page392.htm) (portuguese)
+
+> Dedicated to our greatly missed Professor Hugo Vieira.
+His lessons and dedication will always be remembered.
+
+<img src="./simulator/screenshot.png" alt="Screenshot of simulator running" width=500 />
 
 ## Architecture
 
 ![](./docs/img/architecture.png)
-
-> Dedicated to our greatly missed Professor Hugo Vieira.
-His lessons and dedication will always be remembered.
