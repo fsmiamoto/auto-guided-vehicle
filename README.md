@@ -15,6 +15,12 @@ His lessons and dedication will always be remembered.
 
 <img src="./simulator/screenshot.png" alt="Screenshot of simulator running" width=500 />
 
+## Code
+
+Most of the source code developed is at the [vehicle-controller](https://github.com/fsmiamoto/auto-guided-vehicle/tree/master/src/Projects/vehicle-controller)
+directory which contains the IAR 9 project files.
+
 ## Architecture
 
 ![](./docs/img/architecture.png)
+
